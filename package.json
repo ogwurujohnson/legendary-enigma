@@ -1,0 +1,9 @@
+{
+  "name": "legendary-enigma",
+  "version": "0.0.1",
+  "description": "A rule validation API",
+  "main": "index.js",
+  "repository": "https://github.com/ogwurujohnson/legendary-enigma.git",
+  "author": "ogwurujohnson <ogwurujohnson@gmail.com>",
+  "license": "MIT"
+}

@@ -2,8 +2,30 @@
   "name": "legendary-enigma",
   "version": "0.0.1",
   "description": "A rule validation API",
-  "main": "index.js",
   "repository": "https://github.com/ogwurujohnson/legendary-enigma.git",
   "author": "ogwurujohnson <ogwurujohnson@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts":  {
+    "start": "babel-node src/server.js",
+    "develop": "nodemon --exec babel-node src/server.js",
+    "test": "jest --forceExit --coverage --verbose"
+  },
+  "dependencies": {
+    "app-root-path": "^3.0.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "helmet": "^4.4.1",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.11.1",
+    "@babel/node": "^7.10.5",
+    "@babel/preset-env": "^7.11.0",
+    "chai": "^4.2.0",
+    "jest": "^26.6.3",
+    "nodemon": "^2.0.7",
+    "supertest": "^6.1.3"
+  }
 }

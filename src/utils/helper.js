@@ -1,3 +1,19 @@
+const responseHandler = (message, status, field, fieldValue, condition, conditionValue) => {
+  return {
+    message,
+    status,
+    data: {
+      validation: {
+        error: status === 'error',
+        field,
+        field_value: fieldValue,
+        condition,
+        condition_value: conditionValue 
+      }
+    }
+  }
+}
+
 const equator = (condition, conditionValue, fieldValue) => {
   switch(condition) {
     case 'eq':
@@ -63,8 +79,8 @@ export const ruleValidator = (payload) => {
   if (dataType === 'string') {
     const fieldValue = data[fieldRef[0]];
     const res = equator(condition, condition_value, fieldValue);
-    return {
-      res
+    const data = {
+      
     }
   }
 

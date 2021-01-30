@@ -3,7 +3,8 @@ import compression from 'compression';
 import cors from 'cors';
 import helmet from 'helmet';
 
-import { ruleValidator } from './utils/helper';
+import { ruleValidator } from './validator';
+import { validate } from './utils/middleware';
 
 const app = express();
 
@@ -26,10 +27,11 @@ app.get('/', (req, res) => {
   })
 })
 
-app.post('/validate-rule', (req, res) => {
+app.post('/validate-rule', validate, (req, res) => {
   const { body } = req;
   const result = ruleValidator(body);
-  res.status(200).json(result)
+  const status = result.status === 'error' ? 400 : 200;
+  res.status(status).json(result);
 })
 
 export default app;

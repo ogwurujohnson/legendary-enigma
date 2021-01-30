@@ -18,6 +18,20 @@ A Basic rule validation API
 
 `yarn test`
 
+_______
+
+## Running with Docker
+
+### Build the docker image
+
+`docker build -t validator/web-app .`
+
+### Run the built image
+
+`docker run -p 3000:3000 -d validator/web-app`
+
+_____
+
 ## API Documentation
 
 | Methods | Endpoint              | Description                              |

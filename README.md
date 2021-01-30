@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/ogwurujohnson/legendary-enigma.svg?token=EVLqNwUG2BoGnpYZHwuu&branch=master)](https://travis-ci.com/ogwurujohnson/legendary-enigma)
+
 # Legendary Enigma
 
 A Basic rule validation API

@@ -19,16 +19,16 @@ export const validate = (req, res, next) => {
   if (!body.data) {
     return res.status(400).json(errorResponse(responseMessages.REQUIRED_DATA));
   }
-  if (!body.rule.field) {
+  if ((Object.keys(body.rule).length !== 0) && !body.rule.field) {
     return res.status(400).json(errorResponse(responseMessages.REQUIRED_FIELD));
   }
-  if (!body.rule.condition) {
+  if ((Object.keys(body.rule).length !== 0) && !body.rule.condition) {
     return res.status(400).json(errorResponse(responseMessages.REQUIRED_CONDITION));
   }
-  if (!body.rule.condition_value) {
+  if ((Object.keys(body.rule).length !== 0) && !body.rule.condition_value) {
     return res.status(400).json(errorResponse(responseMessages.REQUIRED_CON_VALUE));
   }
-  if(!acceptedConditions.includes(body.rule.condition)) {
+  if((Object.keys(body.rule).length !== 0) && !acceptedConditions.includes(body.rule.condition)) {
     return res.status(400).json(errorResponse(responseMessages.ACCEPTED_CONDITION));
   }
   if (typeof body.rule !== 'object' || Array.isArray(body.rule)) {

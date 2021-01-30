@@ -27,7 +27,7 @@ const objectHandler = (condition, conditionValue, data, fieldRef, field) => {
         fieldValue: data[fieldRef[0]][fieldRef[1]],
       });
     } else {
-      // check if data exists
+      // if data doesn't exist
       const response = errorResponse(responseMessages.MISSING_FIELD(field));
       return response;
     }

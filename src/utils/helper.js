@@ -7,6 +7,14 @@ export const sampleData = {
     },
     "data": "damien-marley"
   },
+  fieldNotInData: {
+    "rule": {
+      "field": "13",
+      "condition": "eq",
+      "condition_value": "a"
+    },
+    "data": "damien-marley"
+  },
   arrayData: {
     "rule": {
       "field": "3",
@@ -30,7 +38,52 @@ export const sampleData = {
         "carry": 45
       }
     }
-  }
+  },
+  failedObjectData: {
+    "rule": {
+      "field": "missions.carry",
+      "condition": "gte",
+      "condition_value": 30
+    },
+    "data": {
+      "name": "James Holden",
+      "crew": "Rocinante",
+      "age": 34,
+      "position": "Captain",
+      "missions": {
+        "carry": 22
+      }
+    }
+  },
+  wrongObjectData: {
+    "rule": {
+      "field": "missions.carry",
+      "condition": "gte",
+      "condition_value": 30
+    },
+    "data": 9
+  },
+  wrongRuleType: {
+    "rule": [],
+    "data": "damien-marley"
+  },
+  missingRuleProperty: {
+    "rule": {
+      "field": "0",
+      "condition_value": "a"
+    },
+    "data": "damien-marley"
+  },
+  missingRuleField : {
+    "data": "damien-marley"
+  },
+  missingDataField: {
+    "rule": {
+      "field": "0",
+      "condition": "eq",
+      "condition_value": "a"
+    },
+  },
 }
 
 export const responseHandler = ({ message, status, data }) => {

@@ -6,6 +6,14 @@ export const responseHandler = ({ message, status, data }) => {
   }
 }
 
+export const errorResponse = (message) => {
+  return responseHandler({
+    message,
+    status: 'error',
+    data: null
+  })
+}
+
 const equator = (condition, conditionValue, fieldValue) => {
   switch(condition) {
     case 'eq':
@@ -131,9 +139,14 @@ export const ruleValidator = (payload) => {
   const dataType = Array.isArray(data) ? 'array' : typeof data;
 
   if (fieldRef.length > 2) {
-    return {
-      message: 'More than 2 levels of nesting'
+    const resData = {
+      message: `more than 2 layers in field.`,
+      status: 'error',
+      data: null
     }
+
+    const response = responseHandler(resData);
+    return response;
   }
 
   if (dataType === 'string') {

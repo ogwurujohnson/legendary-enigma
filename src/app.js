@@ -3,6 +3,8 @@ import compression from 'compression';
 import cors from 'cors';
 import helmet from 'helmet';
 
+import { ruleValidator } from './utils/helper';
+
 const app = express();
 
 app.use(cors());
@@ -22,6 +24,12 @@ app.get('/', (req, res) => {
       "twitter": "@devopsjay"
     }
   })
+})
+
+app.post('/validate-rule', (req, res) => {
+  const { body } = req;
+  const result = ruleValidator(body);
+  res.status(200).json(result)
 })
 
 export default app;

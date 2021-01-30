@@ -3,7 +3,7 @@ import compression from 'compression';
 import cors from 'cors';
 import helmet from 'helmet';
 
-import { ruleValidator } from './utils/helper';
+import { ruleValidator } from './validator';
 import { validate } from './utils/middleware';
 
 const app = express();

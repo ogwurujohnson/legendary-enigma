@@ -1,3 +1,38 @@
+export const sampleData = {
+  stringData: {
+    "rule": {
+      "field": "0",
+      "condition": "eq",
+      "condition_value": "a"
+    },
+    "data": "damien-marley"
+  },
+  arrayData: {
+    "rule": {
+      "field": "3",
+      "condition": "contains",
+      "condition_value": "Tycho"
+    },
+    "data": ["The Nauvoo", "The Razorback", "The Roci", "Tycho"]
+  },
+  objectData: {
+    "rule": {
+      "field": "missions.carry",
+      "condition": "gte",
+      "condition_value": 30
+    },
+    "data": {
+      "name": "James Holden",
+      "crew": "Rocinante",
+      "age": 34,
+      "position": "Captain",
+      "missions": {
+        "carry": 45
+      }
+    }
+  }
+}
+
 export const responseHandler = ({ message, status, data }) => {
   return {
     message,
@@ -14,7 +49,41 @@ export const errorResponse = (message) => {
   })
 }
 
-const equator = (condition, conditionValue, fieldValue) => {
+export const basicResponse = ({ message, status, rule, fieldValue }) => {
+  return responseHandler({
+    message,
+    status,
+    data: {
+      validation: {
+        error: status === 'error',
+        field: rule.field,
+        field_value: fieldValue,
+        condition: rule.condition,
+        condition_value: rule.condition_value
+      }
+    }
+  })
+}
+
+export const responseMessages = {
+  INVALID_JSON: 'Invalid JSON payload passed.',
+  REQUIRED_RULE_DATA: 'The rule and data fields are required.',
+  REQUIRED_RULE: 'rule is required.',
+  REQUIRED_DATA: 'data is required.',
+  REQUIRED_FIELD: 'field is required.',
+  REQUIRED_CONDITION: 'condition is required.',
+  REQUIRED_CON_VALUE: 'condition_value is required.',
+  ACCEPTED_CONDITION: 'condition should be any of, eq | neq | gte | gt | contains .',
+  RULE_TYPE_ERROR: 'rule should be an object.',
+  DATA_TYPE_ERROR: 'data should be an array | object | string.',
+  EMPTY_DATA_ARRAY: 'data should not be empty.',
+  MORE_THAN_TWO_LAYERS: 'more than 2 layers in field.',
+  MISSING_FIELD: (field) => `field ${field} is missing from data.`,
+  SUCCESSFUL_VALIDATION: (field) => `field ${field} successfully validated.`,
+  FAILED_VALIDATION: (field) => `field ${field} failed validation.`,
+}
+
+export const equator = (condition, conditionValue, fieldValue) => {
   switch(condition) {
     case 'eq':
       return fieldValue === conditionValue
@@ -24,171 +93,8 @@ const equator = (condition, conditionValue, fieldValue) => {
       return fieldValue > conditionValue
     case 'gte':
       return fieldValue >= conditionValue
-    case 'contains': //use includes here, work for both arrays and strings
+    case 'contains':
       return fieldValue.includes(conditionValue)
   }
 }
 
-const objectHandler = (condition, conditionValue, data, fieldRef, field) => {
-  // check if data exists
-  if(!data[fieldRef[0]]) {
-    const resData = {
-      message: `field ${field} is missing from data.`,
-      status: 'error',
-      data: null
-    }
-
-    const response = responseHandler(resData);
-    return response;
-  }
-
-  if (fieldRef.length === 1) {
-    const res = equator(condition, conditionValue, data[fieldRef[0]]);
-    const resData = {
-      message: res ? `field ${field} successfully validated.` : `field ${field} failed validation.`,
-      status: res ? 'success' : 'error',
-      data: {
-        validation: {
-          error: !res,
-          field,
-          field_value: data[fieldRef[0]],
-          condition,
-          condition_value: conditionValue
-        }
-      }
-    }
-
-    const response = responseHandler(resData);
-    return response;
-  }
-
-  if (fieldRef.length === 2) {
-    if (data[fieldRef[0]][fieldRef[1]]) {
-      const res = equator(condition, conditionValue, data[fieldRef[0]][fieldRef[1]]);
-      const resData = {
-        message: res ? `field ${field} successfully validated.` : `field ${field} failed validation.`,
-        status: res ? 'success' : 'error',
-        data: {
-          validation: {
-            error: !res,
-            field,
-            field_value: data[fieldRef[0]][fieldRef[1]],
-            condition,
-            condition_value: conditionValue
-          }
-        }
-      }
-  
-      const response = responseHandler(resData);
-      return response;
-    } else {
-      // check if data exists
-      const resData = {
-        message: `field ${field} is missing from data.`,
-        status: 'error',
-        data: null
-      }
-  
-      const response = responseHandler(resData);
-      return response;
-    }
-  }
-}
-
-const arrayHandler = (condition, conditionValue, data, fieldRef, field) => {
-  if (data.length <= 0) {
-    // move this to validation middleware
-    return 'Empty Array'
-  }
-
-  const fieldValue = data[fieldRef[0]];
-  if (!fieldValue) {
-    const resData = {
-      message: `field ${field} is missing from data.`,
-      status: 'error',
-      data: null
-    }
-
-    const response = responseHandler(resData);
-    return response;
-  }
-
-  const res = equator(condition, conditionValue, fieldValue);
-  const resData = {
-    message: res ? `field ${field} successfully validated.` : `field ${field} failed validation.`,
-    status: res ? 'success' : 'error',
-    data: {
-      validation: {
-        error: !res,
-        field,
-        field_value: fieldValue,
-        condition,
-        condition_value: conditionValue
-      }
-    }
-  }
-
-  const response = responseHandler(resData);
-  return response;
-}
-
-export const ruleValidator = (payload) => {
-  const { data, rule: { field, condition, condition_value } } = payload;
-  const fieldRef = field.split('.');
-
-  const dataType = Array.isArray(data) ? 'array' : typeof data;
-
-  if (fieldRef.length > 2) {
-    const resData = {
-      message: `more than 2 layers in field.`,
-      status: 'error',
-      data: null
-    }
-
-    const response = responseHandler(resData);
-    return response;
-  }
-
-  if (dataType === 'string') {
-    const fieldValue = data[fieldRef[0]];
-    // check if data exists
-    if (!fieldValue) {
-      const resData = {
-        message: `field ${field} is missing from data.`,
-        status: 'error',
-        data: null
-      }
-  
-      const response = responseHandler(resData);
-      return response;
-    }
-
-    const res = equator(condition, condition_value, fieldValue);
-    const resData = {
-      message: res ? `field ${field} successfully validated.` : `field ${field} failed validation.`,
-      status: res ? 'success' : 'error',
-      data: {
-        validation: {
-          error: !res,
-          field,
-          field_value: fieldValue,
-          condition,
-          condition_value
-        }
-      }
-    }
-
-    const response = responseHandler(resData);
-    return response;
-  }
-
-  if (dataType === 'object') {
-    const res = objectHandler(condition, condition_value, data, fieldRef, field);
-    return res;
-  }
-
-  if (dataType === 'array') {
-    const res = arrayHandler(condition, condition_value, data, fieldRef, field);
-    return res;
-  }
-}

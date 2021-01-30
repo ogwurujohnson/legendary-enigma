@@ -29,7 +29,8 @@ app.get('/', (req, res) => {
 app.post('/validate-rule', (req, res) => {
   const { body } = req;
   const result = ruleValidator(body);
-  res.status(200).json(result)
+  const status = result.status === 'error' ? 400 : 200;
+  res.status(status).json(result)
 })
 
 export default app;

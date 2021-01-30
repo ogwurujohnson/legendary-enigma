@@ -1,16 +1,8 @@
-const responseHandler = (message, status, field, fieldValue, condition, conditionValue) => {
+export const responseHandler = ({ message, status, data }) => {
   return {
     message,
     status,
-    data: {
-      validation: {
-        error: status === 'error',
-        field,
-        field_value: fieldValue,
-        condition,
-        condition_value: conditionValue 
-      }
-    }
+    data,
   }
 }
 
@@ -29,27 +21,73 @@ const equator = (condition, conditionValue, fieldValue) => {
   }
 }
 
-const objectHandler = (condition, conditionValue, data, fieldRef) => {
+const objectHandler = (condition, conditionValue, data, fieldRef, field) => {
+  // check if data exists
   if(!data[fieldRef[0]]) {
-    return 'Ref not found'
+    const resData = {
+      message: `field ${field} is missing from data.`,
+      status: 'error',
+      data: null
+    }
+
+    const response = responseHandler(resData);
+    return response;
   }
 
   if (fieldRef.length === 1) {
     const res = equator(condition, conditionValue, data[fieldRef[0]]);
-    return res;
+    const resData = {
+      message: res ? `field ${field} successfully validated.` : `field ${field} failed validation.`,
+      status: res ? 'success' : 'error',
+      data: {
+        validation: {
+          error: !res,
+          field,
+          field_value: data[fieldRef[0]],
+          condition,
+          condition_value: conditionValue
+        }
+      }
+    }
+
+    const response = responseHandler(resData);
+    return response;
   }
 
   if (fieldRef.length === 2) {
     if (data[fieldRef[0]][fieldRef[1]]) {
       const res = equator(condition, conditionValue, data[fieldRef[0]][fieldRef[1]]);
-      return res;
+      const resData = {
+        message: res ? `field ${field} successfully validated.` : `field ${field} failed validation.`,
+        status: res ? 'success' : 'error',
+        data: {
+          validation: {
+            error: !res,
+            field,
+            field_value: data[fieldRef[0]][fieldRef[1]],
+            condition,
+            condition_value: conditionValue
+          }
+        }
+      }
+  
+      const response = responseHandler(resData);
+      return response;
     } else {
-      return 'Second level Ref not found'
+      // check if data exists
+      const resData = {
+        message: `field ${field} is missing from data.`,
+        status: 'error',
+        data: null
+      }
+  
+      const response = responseHandler(resData);
+      return response;
     }
   }
 }
 
-const arrayHandler = (condition, conditionValue, data, fieldRef) => {
+const arrayHandler = (condition, conditionValue, data, fieldRef, field) => {
   if (data.length <= 0) {
     // move this to validation middleware
     return 'Empty Array'
@@ -57,11 +95,33 @@ const arrayHandler = (condition, conditionValue, data, fieldRef) => {
 
   const fieldValue = data[fieldRef[0]];
   if (!fieldValue) {
-    return 'field value is missing from data'
+    const resData = {
+      message: `field ${field} is missing from data.`,
+      status: 'error',
+      data: null
+    }
+
+    const response = responseHandler(resData);
+    return response;
   }
 
   const res = equator(condition, conditionValue, fieldValue);
-  return res;
+  const resData = {
+    message: res ? `field ${field} successfully validated.` : `field ${field} failed validation.`,
+    status: res ? 'success' : 'error',
+    data: {
+      validation: {
+        error: !res,
+        field,
+        field_value: fieldValue,
+        condition,
+        condition_value: conditionValue
+      }
+    }
+  }
+
+  const response = responseHandler(resData);
+  return response;
 }
 
 export const ruleValidator = (payload) => {
@@ -78,23 +138,44 @@ export const ruleValidator = (payload) => {
 
   if (dataType === 'string') {
     const fieldValue = data[fieldRef[0]];
-    const res = equator(condition, condition_value, fieldValue);
-    const data = {
-      
+    // check if data exists
+    if (!fieldValue) {
+      const resData = {
+        message: `field ${field} is missing from data.`,
+        status: 'error',
+        data: null
+      }
+  
+      const response = responseHandler(resData);
+      return response;
     }
+
+    const res = equator(condition, condition_value, fieldValue);
+    const resData = {
+      message: res ? `field ${field} successfully validated.` : `field ${field} failed validation.`,
+      status: res ? 'success' : 'error',
+      data: {
+        validation: {
+          error: !res,
+          field,
+          field_value: fieldValue,
+          condition,
+          condition_value
+        }
+      }
+    }
+
+    const response = responseHandler(resData);
+    return response;
   }
 
   if (dataType === 'object') {
-    const res = objectHandler(condition, condition_value, data, fieldRef);
-    return {
-      res
-    }
+    const res = objectHandler(condition, condition_value, data, fieldRef, field);
+    return res;
   }
 
   if (dataType === 'array') {
-    const res = arrayHandler(condition, condition_value, data, fieldRef);
-    return {
-      res
-    }
+    const res = arrayHandler(condition, condition_value, data, fieldRef, field);
+    return res;
   }
 }
